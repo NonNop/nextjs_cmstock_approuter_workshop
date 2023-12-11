@@ -4,6 +4,7 @@ import { useAppDispatch } from "@/src/store/store";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { Email, Password } from "@mui/icons-material";
 import {
+  Alert,
   Box,
   Button,
   Card,
@@ -48,8 +49,13 @@ export default function Register({}: Props) {
   const showForm = () => {
     return (
       <form
-        onSubmit={handleSubmit((value: User) => {
-          dispatch(signUp(value));
+        onSubmit={handleSubmit(async (value: User) => {
+          const result = await dispatch(signUp(value));
+          if (signUp.fulfilled.match(result)) {
+            alert("Register successfully");
+          } else if (signUp.rejected.match(result)) {
+            alert("Register failed");
+          }
         })}
       >
         {/* Username */}
@@ -90,6 +96,7 @@ export default function Register({}: Props) {
               variant='outlined'
               margin='normal'
               fullWidth
+              type='password'
               InputProps={{
                 startAdornment: (
                   <InputAdornment position='start'>
@@ -104,12 +111,17 @@ export default function Register({}: Props) {
           )}
         ></Controller>
 
+        {reducer.status == "failed" && (
+          <Alert severity='error'>Register Failed</Alert>
+        )}
+
         <Button
           className='mt-8'
           type='submit'
           fullWidth
           variant='contained'
           color='primary'
+          disabled={reducer.status == "fetching"}
         >
           Create
         </Button>

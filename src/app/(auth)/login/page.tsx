@@ -1,9 +1,10 @@
 "use client";
-import { add, userSelector } from "@/src/store/slices/userSlice";
+import { add, signIn, userSelector } from "@/src/store/slices/userSlice";
 import { useAppDispatch } from "@/src/store/store";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { Email, Password } from "@mui/icons-material";
 import {
+  Alert,
   Box,
   Button,
   Card,
@@ -48,8 +49,11 @@ export default function Login({}: Props) {
   const showForm = () => {
     return (
       <form
-        onSubmit={handleSubmit((value: User) => {
-          alert(JSON.stringify(value));
+        onSubmit={handleSubmit(async (value: User) => {
+          const result = await dispatch(signIn(value));
+          if (signIn.fulfilled.match(result)) {
+            router.push("/stock");
+          }
         })}
       >
         {/* Username */}
@@ -85,6 +89,7 @@ export default function Login({}: Props) {
           render={({ field }) => (
             <TextField
               {...field}
+              type='password'
               error={Boolean(errors.password?.message)}
               helperText={errors.password?.message?.toString()}
               variant='outlined'
@@ -104,14 +109,19 @@ export default function Login({}: Props) {
           )}
         ></Controller>
 
+        {reducer.status == "failed" && (
+          <Alert severity='error'>Login Failed</Alert>
+        )}
+
         <Button
           className='mt-8'
           type='submit'
           fullWidth
           variant='contained'
           color='primary'
+          disabled={reducer.status == "fetching"}
         >
-          Create
+          Login
         </Button>
         <Button
           className='mt-4'
