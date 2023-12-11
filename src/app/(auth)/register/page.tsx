@@ -1,5 +1,5 @@
 "use client";
-import { add, userSelector } from "@/src/store/slices/userSlice";
+import { add, signUp, userSelector } from "@/src/store/slices/userSlice";
 import { useAppDispatch } from "@/src/store/store";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { Email, Password } from "@mui/icons-material";
@@ -49,7 +49,7 @@ export default function Register({}: Props) {
     return (
       <form
         onSubmit={handleSubmit((value: User) => {
-          alert(JSON.stringify(value));
+          dispatch(signUp(value));
         })}
       >
         {/* Username */}
